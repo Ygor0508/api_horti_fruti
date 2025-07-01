@@ -22,6 +22,8 @@ model Feirante {
   fotos_mercadoria  FotoMercadoria[]
   // usuario           Usuario      @relation(fields: [usuario_id], references: [id])
   // usuario_id        String
+  admin       Admin?    @relation(fields: [adminId], references: [id])
+  adminId     String?    @db.VarChar(36)
   @@map("feirantes")
 }
 
@@ -91,6 +93,8 @@ model Pedido {
   mercadoria_id  Int
   usuario        Usuario            @relation(fields: [usuario_id], references: [id])
   usuario_id     String             @db.VarChar(36)
+  admin       Admin?    @relation(fields: [adminId], references: [id])
+  adminId     String?    @db.VarChar(36)
   @@map("pedidos")
 }
 
@@ -104,4 +108,17 @@ enum Status {
   EM_PREPARACAO
   EM_ROTA
   RETORNANDO
+}
+
+model Admin {
+  id            String   @db.VarChar(36) @id @default(uuid())
+  nome          String   @db.VarChar(60)
+  email         String   @db.VarChar(40)
+  senha         String   @db.VarChar(60)   // senha deve ser varchar(60)
+  nivel         Int      @db.SmallInt @default(2)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt  
+  Feirante      Feirante[]
+  pedido        Pedido[]
+  @@map("admins")
 }
