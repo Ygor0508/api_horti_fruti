@@ -1,72 +1,85 @@
-import { PrismaClient } from "@prisma/client"
-import { Router } from "express"
+import { PrismaClient } from "@prisma/client";
+import { Router } from "express";
 
-const prisma = new PrismaClient()
-const router = Router()
+const prisma = new PrismaClient();
+const router = Router();
 
-router.get("/gerais", async (req, res) => {
+// Rota 1: Estatísticas Gerais
+// URL: /dashboard/stats
+router.get("/stats", async (req, res) => {
   try {
-    const usuarios = await prisma.usuario.count()
-    const feirantes = await prisma.feirante.count()
-    const pedidos = await prisma.pedido.count()
-    res.status(200).json({ usuarios, feirantes, pedidos })
-  } catch (error) {
-    res.status(400).json(error)
-  }
-})
-
-// clientes = usuarios
-// carro = feirante
-// proposta = pedido
-// marca = mercadoria
-// cidade = endereco
-
-// Rota de feirantes por mercadoria
-router.get("/feirantesMercadoria", async (req, res) => {
-    try {
+    const totalUsuarios = await prisma.usuario.count();
+    const totalFeirantes = await prisma.feirante.count();
+    const totalPedidos = await prisma.pedido.count();
     
-        const mercadoriasAgrupadas = await prisma.mercadoria.groupBy({
-        by: ['nome'],        
-        _count: {
-            _all: true,       
-        },
-        orderBy: {          
-            _count: {
-            nome: 'desc'
-            }
-        }
-        })
-
-        
-        const resultadoFormatado = mercadoriasAgrupadas.map(item => ({
-        mercadoria: item.nome,
-                num: item._count._all 
-            }))
-        res.status(200).json(resultadoFormatado)
-        } catch (error) {
-        res.status(400).json(error)
-        }
-    })
-
-
-router.get("/usuarioEndereco", async (req, res) => {
-  try {
-    const usuarios = await prisma.usuario.groupBy({
-      by: ['endereco'],
-      _count: {
-        endereco: true,
-      },
-    })
-
-    const usuarios2 = usuarios.map(usuario => ({
-      endereco: usuario.endereco,
-      num: usuario._count.endereco
-    }))
-
-    res.status(200).json(usuarios2)
+    res.status(200).json({ totalUsuarios, totalFeirantes, totalPedidos });
   } catch (error) {
-    res.status(400).json(error)
+    res.status(400).json(error);
   }
-})
+});
 
-export default router
+// Rota 2: Contagem de Mercadorias por Categoria
+// URL: /dashboard/mercadorias-por-categoria
+router.get("/mercadorias-por-categoria", async (req, res) => {
+  try {
+    const mercadoriasAgrupadas = await prisma.mercadoria.groupBy({
+      by: ['categoria'],
+      _count: {
+        _all: true,
+      },
+      orderBy: {
+        _count: {
+          id: 'desc'
+        }
+      }
+    });
+
+    const resultadoFormatado = mercadoriasAgrupadas.map(item => ({
+      categoria: item.categoria,
+      quantidade: item._count._all
+    }));
+
+    res.status(200).json(resultadoFormatado);
+  } catch (error) {
+    res.status(400).json(error);
+  }
+});
+
+
+// Rota 3: Contagem de Usuários por Bairro (CORRIGIDA)
+// URL: /dashboard/usuarios-por-bairro
+router.get("/usuarios-por-bairro", async (req, res) => {
+  try {
+    // 1. Busca todos os usuários para garantir que nenhum seja perdido
+    const todosUsuarios = await prisma.usuario.findMany({
+      select: {
+        bairro: true
+      }
+    });
+
+    // 2. Agrupa os bairros manualmente no código
+    const contagemPorBairro: { [key: string]: number } = {};
+
+    todosUsuarios.forEach(usuario => {
+      // Se o bairro for nulo, vazio ou indefinido, agrupa como "Não Informado"
+      const bairro = usuario.bairro || "Não Informado";
+      if (contagemPorBairro[bairro]) {
+        contagemPorBairro[bairro]++;
+      } else {
+        contagemPorBairro[bairro] = 1;
+      }
+    });
+
+    // 3. Formata o resultado para o formato que o frontend espera
+    const resultadoFormatado = Object.keys(contagemPorBairro).map(bairro => ({
+      bairro: bairro,
+      quantidade: contagemPorBairro[bairro]
+    }));
+
+    res.status(200).json(resultadoFormatado);
+  } catch (error) {
+    res.status(400).json(error);
+  }
+});
+
+export default router;

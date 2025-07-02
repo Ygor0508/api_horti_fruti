@@ -133,7 +133,7 @@ router.put("/:id", async (req, res) => {
   if (!valida.success) {
     return res.status(400).json({ erro: valida.error })
   }
-  const { nome, email, senha, telefone } = valida.data
+  const { nome, email, senha, telefone, adminId } = valida.data
 
   try {
     // Busca feirante + localização atual para obter o ID
@@ -151,7 +151,8 @@ router.put("/:id", async (req, res) => {
         nome,
         email,
         senha,
-        telefone
+        telefone,
+        adminId
       }
     })
 

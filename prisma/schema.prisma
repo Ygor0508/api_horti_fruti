@@ -70,6 +70,7 @@ model Usuario {
   email               String   @unique @db.VarChar(60)
   telefone            String   @db.VarChar(60) @default("")
   endereco            String   @db.VarChar(60) @default("")
+  bairro              String   @db.VarChar(60) @default("")
   senha               String   @db.VarChar(60)
   nivel               Int      @default(1) // 1: Padrão, 2: Moderador, 3: Administrador
   createdAt           DateTime @default(now())

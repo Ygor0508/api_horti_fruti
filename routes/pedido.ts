@@ -6,9 +6,11 @@ import nodemailer from "nodemailer"
 const prisma = new PrismaClient()
 const router = Router()
 
+
+
 // Validação de criação de pedido
 const pedidoSchema = z.object({
-  // quantidade: z.number().min(1),
+  quantidade: z.number().min(1),
   status: z.nativeEnum(Status),
   mercadoria_id: z.number(),
   usuario_id: z.string(),
