@@ -10,6 +10,8 @@ import routesLogin from "./routes/login"
 import routesPedido from "./routes/pedido"
 import routesAdmins from './routes/admins'
 import routesLoginAdmin from './routes/adminLogin'
+import routesCarrinho from './routes/carrinho'
+import routesDashboard from './routes/dashboard'
 // import routesDashboard from './routes/dashboard'
 
 
@@ -29,7 +31,8 @@ app.use("/login", routesLogin)
 app.use("/pedido", routesPedido)
 app.use("/admins", routesAdmins)
 app.use("/admins/login", routesLoginAdmin)
-// app.use("/dashboard", routesDashboard)
+app.use("/carrinho", routesCarrinho)
+app.use("/dashboard", routesDashboard)
 
 
 app.get('/', (req, res) => {
