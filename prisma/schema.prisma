@@ -87,6 +87,7 @@ model Usuario {
 model Pedido {
   id             Int                @id @default(autoincrement())
   quantidade     Decimal            @db.Decimal(10, 2) @default(0.00)
+  unidade_medida  String            @default("UN")
   status         Status             @default(EM_PREPARACAO)
   createdAt      DateTime           @default(now())
   updatedAt      DateTime?          @updatedAt()
