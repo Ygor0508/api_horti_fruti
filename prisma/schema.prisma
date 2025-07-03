@@ -22,6 +22,8 @@ model Feirante {
   fotos_mercadoria  FotoMercadoria[]
   // usuario           Usuario      @relation(fields: [usuario_id], references: [id])
   // usuario_id        String
+  admin       Admin?    @relation(fields: [adminId], references: [id])
+  adminId     String?    @db.VarChar(36)
   @@map("feirantes")
 }
 
@@ -66,10 +68,16 @@ model Usuario {
   id                  String   @db.VarChar(36) @id @default(uuid())
   nome                String   @db.VarChar(60)
   email               String   @unique @db.VarChar(60)
+  telefone            String   @db.VarChar(60) @default("")
+  endereco            String   @db.VarChar(60) @default("")
+  bairro              String   @db.VarChar(60) @default("")
   senha               String   @db.VarChar(60)
   nivel               Int      @default(1) // 1: Padrão, 2: Moderador, 3: Administrador
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+  codigoRecuperacao   String?  
+  // novaSenha           String?  @db.VarChar(60)
+  // confirmarSenha      String?  @db.VarChar(60)
   // mercadorias         Mercadoria[]
   // feirantes           Feirante[]
   pedidos             Pedido[]
@@ -78,6 +86,8 @@ model Usuario {
 
 model Pedido {
   id             Int                @id @default(autoincrement())
+  quantidade     Decimal            @db.Decimal(10, 2) @default(0.00)
+  unidade_medida  String            @default("UN")
   status         Status             @default(EM_PREPARACAO)
   createdAt      DateTime           @default(now())
   updatedAt      DateTime?          @updatedAt()
@@ -85,6 +95,8 @@ model Pedido {
   mercadoria_id  Int
   usuario        Usuario            @relation(fields: [usuario_id], references: [id])
   usuario_id     String             @db.VarChar(36)
+  admin       Admin?    @relation(fields: [adminId], references: [id])
+  adminId     String?    @db.VarChar(36)
   @@map("pedidos")
 }
 
@@ -98,4 +110,17 @@ enum Status {
   EM_PREPARACAO
   EM_ROTA
   RETORNANDO
+}
+
+model Admin {
+  id            String   @db.VarChar(36) @id @default(uuid())
+  nome          String   @db.VarChar(60)
+  email         String   @db.VarChar(40)
+  senha         String   @db.VarChar(60)   // senha deve ser varchar(60)
+  nivel         Int      @db.SmallInt @default(2)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt  
+  Feirante      Feirante[]
+  pedido        Pedido[]
+  @@map("admins")
 }

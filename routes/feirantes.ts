@@ -50,7 +50,8 @@ const feiranteSchema = z.object({
         message: "Telefone deve conter apenas números e ter entre 10 e 11 dígitos"
       }),
     // usuario_id: z.string(),
-  })
+  adminId: z.string().optional()
+})
 
 router.get("/", async (req, res) => {
   try {
@@ -71,7 +72,7 @@ router.post("/", async (req, res) => {
     return
   }
 
-  const { nome, email, senha, telefone } = valida.data
+  const { nome, email, senha, telefone, adminId } = valida.data
 
   try {
     const feirante = await prisma.feirante.create({
@@ -79,7 +80,8 @@ router.post("/", async (req, res) => {
         nome,
         email,
         senha,
-        telefone
+        telefone,
+        adminId
       }
     })
     res.status(201).json(feirante)
@@ -131,7 +133,7 @@ router.put("/:id", async (req, res) => {
   if (!valida.success) {
     return res.status(400).json({ erro: valida.error })
   }
-  const { nome, email, senha, telefone } = valida.data
+  const { nome, email, senha, telefone, adminId } = valida.data
 
   try {
     // Busca feirante + localização atual para obter o ID
@@ -149,7 +151,8 @@ router.put("/:id", async (req, res) => {
         nome,
         email,
         senha,
-        telefone
+        telefone,
+        adminId
       }
     })
 
